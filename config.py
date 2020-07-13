@@ -2,7 +2,8 @@ import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config(object):
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE') or 'sqlite:///' + os.path.join(basedir, 'app.db')
+    #SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'app.db') 
+    SQLALCHEMY_DATABASE_URI = "postgresql+psycopg2://" + str(os.environ.get('DROPMIRE_DB_USER')) + ":" + str(os.environ.get('DROPMIRE_DB_PASS')) + "@" + str(os.environ.get('POSTGRESQL_SERVICE_HOST')) + ":5432/" + str(os.environ.get('DROPMIRE_DB_NAME'))
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-will-never-guess'
 

@@ -1,0 +1,23 @@
+:root {
+  font-size: 0.875em;
+}
+
+body {
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+.panel {
+  padding: 1em;
+  border: 1px solid #999;
+  border-radius: 0.5em;
+
+  margin-top: 100px;
+  margin-bottom: 100px;
+  margin-right: 150px;
+  margin-left: 80px;
+}
+.panel > h2 {
+  margin-top: 0;
+  font-weight: bold;
+  text-transform: uppercase;
+}

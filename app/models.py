@@ -36,4 +36,3 @@ class Domain(db.Model):
                 return r.domain
         return None
 
-

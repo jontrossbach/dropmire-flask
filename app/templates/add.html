@@ -3,6 +3,10 @@
 {% block title %}Add a new domain{% endblock %}
 {% block content %}
 
+<link rel="stylesheet" type= "text/css" href="{{ url_for('static', filename='css/add.css') }}">
+<div class=add>
+<b>               
+
 <h1>Add a new domain</h1>
 <form action="" method="post" novalidate>
     {{ form.hidden_tag() }}
@@ -24,5 +28,8 @@
 
     <p>{{ form.submit() }}</p>
 </form>
+
+</b>
+</div> 
 
 {% endblock %}

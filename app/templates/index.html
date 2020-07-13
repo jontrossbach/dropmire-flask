@@ -3,6 +3,10 @@
 {% block title %}Home{% endblock %}
 {% block content %}
 
+<link rel="stylesheet" type= "text/css" href="{{ url_for('static', filename='css/index.css') }}">
+<div class=index>
+<a>
+
 <h3>Tenants</h3>
 {% for p in data|sort %}
 <p class="domain"><h2>{{ p }}</h2>
@@ -22,3 +26,6 @@
 </p>
 {% endfor %}
 {% endblock %}
+
+</a>
+</div>

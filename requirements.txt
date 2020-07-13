@@ -3,7 +3,10 @@ Flask-SQLAlchemy
 Flask-WTF
 Flask-Migrate
 Flask-Mail
-PyJWT
+PYJWT
 dnspython
 gunicorn
 python-whois
+email_validator
+psycopg2
+pandas
