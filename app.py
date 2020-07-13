@@ -2,4 +2,4 @@
 from os import system
 
 if __name__ == "__main__":
-    system('python3 __init__.py')
+    system('python3 ./app/__init__.py')
