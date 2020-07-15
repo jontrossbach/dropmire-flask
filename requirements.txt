@@ -8,3 +8,4 @@ dnspython
 gunicorn
 python-whois
 email_validator
+psycopg2
