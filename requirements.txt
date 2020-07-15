@@ -7,3 +7,4 @@ PyJWT
 dnspython
 gunicorn
 python-whois
+email_validator
