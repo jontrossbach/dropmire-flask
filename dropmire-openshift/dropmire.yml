@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Template
 labels:
   app: dropmire
-  template: dropmire-flask-psql-persistent
+  template: dropmire-psql-persistent
   #message: 'The following software have been deployed on https://${APPLICATION_DOMAIN}.
   #To finish the installation, please connect using "oc rsh" on the application pod and run the following:
   #  export DROPMIRE_DB_HOST=\$POSTGRESQL_SERVICE_HOST
@@ -142,12 +142,15 @@ objects:
             value: ${APP_CONFIG}
           - name: APP_MODULE
             value: app
+            #- name: DATABASE
+            #value: postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@postgresql-default.apps-crc.testing/${DATABASE_NAME}
             #- name: DJANGO_SECRET_KEY
             #valueFrom:
             #  secretKeyRef:
             #    key: django-secret-key
             #    name: ${NAME}
           image: ' '
+          imagePullPolicy: Always
           livenessProbe:
             httpGet:
               path: /
@@ -170,8 +173,33 @@ objects:
           - mountPath: /var/lib/dropmire/
             name: dropmire-data
         initContainers:
-        - name: init-database-table
+        - env:
+          - name: DROPMIRE_SITE_URL
+            value: https://${APPLICATION_DOMAIN}
+          - name: DROPMIRE_DB_TYPE
+            value: postgresql
+          - name: DROPMIRE_DB_NAME
+            value: ${DATABASE_NAME}
+          - name: DROPMIRE_DB_USER
+            valueFrom:
+              secretKeyRef:
+                key: database-user
+                name: ${NAME}
+          - name: DROPMIRE_DB_PASS
+            valueFrom:
+              secretKeyRef:
+                key: database-password
+                name: ${NAME}
+          - name: APP_CONFIG
+            value: ${APP_CONFIG}
+          - name: APP_MODULE
+            value: app
+            #- name: DATABASE
+            #value: postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@postgresql-default.apps-crc.testing/${DATABASE_NAME}
+          name: init-database-table
           image: ' '
+          #possibly add workdir argument
+          imagePullPolicy: Always
           command: ['sh', '-c', 'python createdb.py']
         volumes:
         - name: dropmire-data
@@ -182,6 +210,7 @@ objects:
         automatic: true
         containerNames:
         - dropmire-psql-persistent
+        - init-database-table
         from:
           kind: ImageStreamTag
           name: ${NAME}:latest
@@ -428,7 +457,7 @@ parameters:
   displayName: Memory Limit
   name: MEMORY_LIMIT
   required: true
-  value: 1024Mi
+  value: 512Mi
 
 - description: Maximum amount of memory the PostgreSQL container can use.
   displayName: Memory Limit (PostgreSQL)
@@ -440,7 +469,7 @@ parameters:
   displayName: Volume Capacity
   name: POSTGRESQL_VOLUME_CAPACITY
   required: true
-  value: 1Gi
+  value: 512Mi
 
 - description: The URL of the repository with your application source code.
   displayName: Git Repository URL
@@ -471,15 +500,20 @@ parameters:
   required: true
   value: default
 
-# - displayName: Database Username
-#   name: DATABASE_USER
-#   required: true
-#   value: dropmire
+- displayName: Database Username
+  name: DATABASE_USER
+  required: true
+  value: dropmire
 
 - displayName: Database User Password
   from: '[a-zA-Z0-9]{16}'
   generate: expression
   name: DATABASE_PASSWORD
+
+# - displayName: Database User Password
+#   name: DATABASE
+#   require: true
+#   value: 'postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@postgresql-default.apps-crc.testing/${DATABASE_NAME}'
 
 # - description: Relative path to Gunicorn configuration file (optional).
 #   displayName: Application Configuration File Path
@@ -519,10 +553,10 @@ parameters:
   displayName: Dropmire Data Volume Capacity
   name: DROPMIRE_DATA_VOLUME_CAPACITY
   required: true
-  value: 1Gi
+  value: 512Mi
 
 - description: RedHat mail server
   displayName: RedHat mail server
   name: MAIL_SERVER
   required: true
-  value: smtp.corp.redhat.co
+  value: smtp.corp.redhat.com
