@@ -187,8 +187,6 @@ objects:
               secretKeyRef:
                 key: database-password
                 name: ${NAME}
-          - name: APP_CONFIG
-            value: ${APP_CONFIG}
           - name: APP_MODULE
             value: app
             #- name: DATABASE
