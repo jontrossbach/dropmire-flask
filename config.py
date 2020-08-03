@@ -2,7 +2,7 @@ import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config(object):
-    os.system('export DATABASE = postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@${POSTGRESQL_SERVICE_HOST}/${DATABASE_NAME}')
+    os.system('export DATABASE = postgresql://${POSTGRESQL_USER}:${POSTGRESQL_PASSWORD}@${POSTGRESQL_SERVICE_HOST}/${POSTGRESQL_DATABASE}')
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE') or 'sqlite:///' + os.path.join(basedir, 'app.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-will-never-guess'
