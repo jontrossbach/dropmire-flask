@@ -139,6 +139,8 @@ objects:
                 name: ${NAME}
           - name: APP_MODULE
             value: app
+          - name: DATABASE
+            value: "postgresql+psycopg2://${DROPMIRE_DB_USER}:${DROPMIRE_DB_PASS}@${POSTGRESQL_SERVICE_HOST}:5432/${DROPMIRE_DB_NAME}"
             #- name: DATABASE
             #value: postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@postgresql-default.apps-crc.testing/${DATABASE_NAME}
             #- name: DJANGO_SECRET_KEY
@@ -189,6 +191,8 @@ objects:
                 name: ${NAME}
           - name: APP_MODULE
             value: app
+          - name: DATABASE
+            value: "postgresql+psycopg2://${DROPMIRE_DB_USER}:${DROPMIRE_DB_PASS}@${POSTGRESQL_SERVICE_HOST}:5432/${DROPMIRE_DB_NAME}"
             #- name: DATABASE
             #value: postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@postgresql-default.apps-crc.testing/${DATABASE_NAME}
           name: init-database-table
