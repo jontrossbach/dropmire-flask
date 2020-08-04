@@ -3,12 +3,11 @@ kind: Template
 labels:
   app: dropmire
   template: dropmire-psql-persistent
-  #message: 'The following software have been deployed on https://${APPLICATION_DOMAIN}.
-  #To finish the installation, please connect using "oc rsh" on the application pod and run the following:
-  #  export DROPMIRE_DB_HOST=\$POSTGRESQL_SERVICE_HOST
-  #  export DROPMIRE_DB_PORT=\$POSTGRESQL_SERVICE_PORT_POSTGRESQL
-  #  python -m dropmire init
-  #'
+message: 'The dropmire-flask application has been deployed. To access the application via browser you 
+  may have to finish the installion by running the following: \n
+    oc expose pod/dropmire-<podhash> \n
+    oc expose service/dropmire-<podhash> \n
+  '
 
 metadata:
   annotations:
@@ -47,15 +46,15 @@ objects:
 #     selector:
 #       name: ${NAME}
 
-- apiVersion: v1
-  kind: Route
-  metadata:
-    name: ${NAME}
-  spec:
-    host: ${APPLICATION_DOMAIN}
-    to:
-      kind: Service
-      name: ${NAME}
+# - apiVersion: v1
+#   kind: Route
+#   metadata:
+#     name: ${NAME}
+#   spec:
+#     host: ${APPLICATION_DOMAIN}
+#     to:
+#       kind: Service
+#       name: ${NAME}
 
 - apiVersion: v1
   kind: ImageStream
@@ -78,27 +77,19 @@ objects:
         name: ${NAME}:latest
     source:
       git:
-        ref: ${SOURCE_REPOSITORY_REF}
+        #ref: ${SOURCE_REPOSITORY_REF}
         uri: ${SOURCE_REPOSITORY_URL}
       type: Git
     strategy:
       sourceStrategy:
-        env:
-        - name: PIP_INDEX_URL
-          value: ${PIP_INDEX_URL}
         from:
           kind: ImageStreamTag
           name: python:${PYTHON_VERSION}
           namespace: ${NAMESPACE}
-        # see https://docs.openshift.com/container-platform/3.9/dev_guide/builds/build_strategies.html#override-builder-image-scripts
-        #scripts: https://raw.githubusercontent.com/mscherer/dropmire-openshift/master/
       type: Source
     triggers:
     - type: ImageChange
     - type: ConfigChange
-      #- github:
-      #  secret: ${GITHUB_WEBHOOK_SECRET}
-      #type: GitHub
 
 - apiVersion: v1
   kind: DeploymentConfig
@@ -141,13 +132,6 @@ objects:
             value: app
           - name: MAIL_SERVER
             value: ${MAIL_SERVER}
-            #- name: DATABASE
-            #value: postgresql+psycopg2://${DROPMIRE_DB_USER}:${DROPMIRE_DB_PASS}@${POSTGRESQL_SERVICE_HOST}:5432/${DROPMIRE_DB_NAME}
-            #- name: DJANGO_SECRET_KEY
-            #valueFrom:
-            #  secretKeyRef:
-            #    key: django-secret-key
-            #    name: ${NAME}
           image: ' '
           imagePullPolicy: Always
           livenessProbe:
@@ -168,9 +152,6 @@ objects:
           resources:
             limits:
               memory: ${MEMORY_LIMIT}
-          volumeMounts:
-          - mountPath: /var/lib/dropmire/
-            name: dropmire-data
         initContainers:
         - env:
           - name: DROPMIRE_SITE_URL
@@ -191,17 +172,10 @@ objects:
                 name: ${NAME}
           - name: APP_MODULE
             value: app
-            #- name: DATABASE
-            #value: postgresql+psycopg2://${DROPMIRE_DB_USER}:${DROPMIRE_DB_PASS}@${POSTGRESQL_SERVICE_HOST}:5432/${DROPMIRE_DB_NAME}
           name: init-database-table
           image: ' '
-          #possibly add workdir argument
           imagePullPolicy: Always
           command: ['sh', '-c', 'python createdb.py']
-        volumes:
-        - name: dropmire-data
-          persistentVolumeClaim:
-            claimName: dropmire-data
     triggers:
     - imageChangeParams:
         automatic: true
@@ -213,17 +187,6 @@ objects:
           name: ${NAME}:latest
       type: ImageChange
     - type: ConfigChange
-
-- apiVersion: v1
-  kind: PersistentVolumeClaim
-  metadata:
-    name: dropmire-data
-  spec:
-    accessModes:
-    - ReadWriteOnce
-    resources:
-      requests:
-        storage: ${DROPMIRE_DATA_VOLUME_CAPACITY}
 
 - apiVersion: v1
   kind: PersistentVolumeClaim
@@ -322,108 +285,6 @@ objects:
       type: ImageChange
     - type: ConfigChange
 
-# - apiVersion: v1
-#   kind: PersistentVolumeClaim
-#   metadata:
-#     name: redis
-#   spec:
-#     accessModes:
-#     - ReadWriteOnce
-#     resources:
-#       requests:
-#         storage: ${REDIS_VOLUME_CAPACITY}
-
-# - apiVersion: v1
-#   kind: Service
-#   metadata:
-#     name: redis
-#   spec:
-#     ports:
-#     - name: redis
-#       port: 6379
-#       targetPort: 6379
-#     selector:
-#       name: redis
-
-
-# - apiVersion: v1
-#   kind: DeploymentConfig
-#   metadata:
-#     annotations:
-#       template.alpha.openshift.io/wait-for-ready: 'true'
-#     name: redis
-#   spec:
-#     replicas: 1
-#     selector:
-#       name: redis
-#     strategy:
-#       type: Recreate
-#     template:
-#       metadata:
-#         name: redis
-#         labels:
-#           name: redis
-#       spec:
-#         containers:
-#         - capabilities: {}
-#           env:
-#           - name: REDIS_PASSWORD
-#             valueFrom:
-#               secretKeyRef:
-#                 key: redis-password
-#                 name: ${NAME}
-#           image: ' '
-#           imagePullPolicy: IfNotPresent
-#           livenessProbe:
-#             initialDelaySeconds: 30
-#             tcpSocket:
-#               port: 6379
-#             timeoutSeconds: 1
-#           name: redis
-#           ports:
-#           - containerPort: 6379
-#             protocol: TCP
-#           readinessProbe:
-#             exec:
-#               command:
-#               - /bin/sh
-#               - -i
-#               - -c
-#               - test "$(redis-cli -h 127.0.0.1 -a $REDIS_PASSWORD ping)" == "PONG"
-#             initialDelaySeconds: 5
-#             timeoutSeconds: 1
-#           resources:
-#             limits:
-#               memory: ${MEMORY_LIMIT}
-#           securityContext:
-#             capabilities: {}
-#             privileged: false
-#           terminationMessagePath: /dev/termination-log
-#           volumeMounts:
-#           - mountPath: /var/lib/redis/data
-#             name: redis-data
-#         dnsPolicy: ClusterFirst
-#         restartPolicy: Always
-#         volumes:
-#         - name: redis-data
-#           persistentVolumeClaim:
-#             claimName: redis
-#     triggers:
-#     - imageChangeParams:
-#         automatic: true
-#         containerNames:
-#         - redis
-#         from:
-#           kind: ImageStreamTag
-#           name: redis:${REDIS_VERSION}
-#           namespace: ${NAMESPACE}
-#         lastTriggeredImage: ''
-#       type: ImageChange
-#     - type: ConfigChange
-#   status: {}
-
-
-
 parameters:
 
 - description: The name assigned to all of the frontend objects defined in this template.
@@ -474,16 +335,16 @@ parameters:
   required: true
   value: https://github.com/jontrossbach/dropmire-flask
 
-- description: Set this to a branch name, tag or other ref of your repository if you
-    are not using the default branch.
-  displayName: Git Reference
-  name: SOURCE_REPOSITORY_REF
+# - description: Set this to a branch name, tag or other ref of your repository if you
+#     are not using the default branch.
+#   displayName: Git Reference
+#   name: SOURCE_REPOSITORY_REF
 
-- description: The exposed hostname that will route to the Django service, if left
-    blank a value will be defaulted.
-  displayName: Application Hostname
-  name: APPLICATION_DOMAIN
-  value: ''
+# - description: The exposed hostname that will route to the Django service, if left
+#     blank a value will be defaulted.
+#   displayName: Application Hostname
+#   name: APPLICATION_DOMAIN
+#   value: ''
 
 # - description: Github trigger secret.  A difficult to guess string encoded as part
 #     of the webhook URL.  Not encrypted.
@@ -506,51 +367,6 @@ parameters:
   from: '[a-zA-Z0-9]{16}'
   generate: expression
   name: DATABASE_PASSWORD
-
-# - displayName: Database User Password
-#   name: DATABASE
-#   require: true
-#   value: 'postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@postgresql-default.apps-crc.testing/${DATABASE_NAME}'
-
-# - description: Relative path to Gunicorn configuration file (optional).
-#   displayName: Application Configuration File Path
-#   name: APP_CONFIG
-# 
-# - description: Set this to a long random string.
-#   displayName: Django Secret Key
-#   from: '[\w]{50}'
-#   generate: expression
-#   name: DJANGO_SECRET_KEY
-
-- description: The custom PyPi index URL
-  displayName: Custom PyPi Index URL
-  name: PIP_INDEX_URL
-  value: ''
-
-# - description: Version of Redis image to be used (3.2 or latest).
-#   displayName: Version of Redis Image
-#   name: REDIS_VERSION
-#   required: true
-#   value: '3.2'
-# 
-# - description: Password for the Redis connection user.
-#   displayName: Redis Connection Password
-#   from: '[a-zA-Z0-9]{16}'
-#   generate: expression
-#   name: REDIS_PASSWORD
-#   required: true
-# 
-# - description: Volume space available for redis data, e.g. 512Mi, 2Gi.
-#   displayName: Redis Volume Capacity
-#   name: REDIS_VOLUME_CAPACITY
-#   required: true
-#   value: 1Gi
-
-- description: Volume space available for dropmire data, e.g. 512Mi, 2Gi.
-  displayName: Dropmire Data Volume Capacity
-  name: DROPMIRE_DATA_VOLUME_CAPACITY
-  required: true
-  value: 512Mi
 
 - description: RedHat mail server
   displayName: RedHat mail server
