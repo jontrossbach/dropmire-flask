@@ -3,9 +3,11 @@ sys.path.append("../")
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 import app
+from config import Config
 
 app = Flask(__name__)
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.db'
+app.config.from_object(Config)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 

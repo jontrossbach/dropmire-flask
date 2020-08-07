@@ -9,3 +9,4 @@ gunicorn
 python-whois
 email_validator
 psycopg2
+pandas
