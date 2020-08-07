@@ -30,21 +30,21 @@ objects:
     database-password: ${DATABASE_PASSWORD}
     database-user: ${DATABASE_USER}
 
-# - apiVersion: v1
-#   kind: Service
-#   metadata:
-#     annotations:
-#       description: Exposes and load balances the application pods
-#       service.alpha.openshift.io/dependencies: '[{"name": "postgresql",
-#         "kind": "Service"}]'
-#     name: ${NAME}
-#   spec:
-#     ports:
-#     - name: web
-#       port: 8080
-#       targetPort: 8080
-#     selector:
-#       name: ${NAME}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      description: Exposes and load balances the application pods
+      service.alpha.openshift.io/dependencies: '[{"name": "postgresql",
+        "kind": "Service"}]'
+    name: ${NAME}
+  spec:
+    ports:
+    - name: web
+      port: 8080
+      targetPort: 8080
+    selector:
+      name: ${NAME}
 
 # - apiVersion: v1
 #   kind: Route
