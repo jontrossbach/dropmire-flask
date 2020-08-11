@@ -105,8 +105,8 @@ def verify_domain(key):
 @application.route('/download')
 def csv():
     from os import system
-    try:
-        system('python /opt/app-root/src/migrations/db2csv.py')
-        return send_from_directory('../migrations/', 'data.csv', as_attachment=True, mimetype='text/csv', attachment_filename=('data.csv'))#send_static_file(f, mimetype = 'text/csv')
-    except OSError:
-        abort(404)
+    #try:
+    system('python /opt/app-root/src/migrations/db2csv.py')
+    return send_from_directory('../migrations/', 'data.csv', as_attachment=True, mimetype='text/csv', attachment_filename=('data.csv'))#send_static_file(f, mimetype = 'text/csv')
+    #except OSError:
+    #    abort(404)
