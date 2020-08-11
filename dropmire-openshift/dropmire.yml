@@ -5,7 +5,6 @@ labels:
   template: dropmire-psql-persistent
 message: 'The dropmire-flask application has been deployed. To access the application via browser you 
   may have to finish the installion by running the following: \n
-    oc expose pod/dropmire-<podhash> \n
     oc expose service/dropmire-<podhash> \n
   '
 
