@@ -107,6 +107,6 @@ def csv():
     from os import system
     #try:
     system('python /opt/app-root/src/migrations/db2csv.py')
-    return send_from_directory('/opt/app-root/src/app', 'data.csv', as_attachment=True, mimetype='text/csv', attachment_filename=('data.csv'))#send_static_file(f, mimetype = 'text/csv')
+    return send_from_directory('/opt/app-root/src/app/', 'data.csv', as_attachment=True, mimetype='text/csv', attachment_filename=('data.csv'))#send_static_file(f, mimetype = 'text/csv')
     #except OSError:
     #    abort(404)
