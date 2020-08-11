@@ -1,4 +1,4 @@
-from flask import render_template, flash, redirect, request
+from flask import render_template, flash, redirect, request, send_from_directory
 from app import application
 from app import db
 from app.forms import AddDomainForm
@@ -101,3 +101,12 @@ def verify_domain(key):
     flash('Domain {} verified'.format(do.domain))
 
     return redirect('/index')
+
+@application.route('/download')
+def csv():
+    from os import system
+    try:
+        system('python /opt/app-root/src/migrations/db2csv.py')
+        return send_from_directory('../migrations/', 'data.csv', as_attachment=True, mimetype='text/csv', attachment_filename=('data.csv'))#send_static_file(f, mimetype = 'text/csv')
+    except OSError:
+        abort(404)
