@@ -106,7 +106,7 @@ def verify_domain(key):
 def csv():
     from os import system
     #try:
-    system('python /opt/app-root/src/migrations/db2csv.py')
-    return send_from_directory('/opt/app-root/src/app/', 'data.csv', as_attachment=True, mimetype='text/csv', attachment_filename=('data.csv'))#send_static_file(f, mimetype = 'text/csv')
+    system('cd /opt/app-root/src/app/ && python /opt/app-root/src/migrations/db2csv.py')
+    return send_from_directory('/opt/app-root/src/app/', 'data.csv', as_attachment=True, mimetype='text/csv', attachment_filename=('data.csv'))
     #except OSError:
     #    abort(404)
